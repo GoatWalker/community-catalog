@@ -1,0 +1,57 @@
+.catalog:
+  name: TICK
+  version: 0.10-rancher1
+  description: |
+      Application monitoring from InfluxData
+  minimum_rancher_version: v0.56.0
+  maintainer: "John Engelman <john.r.engelman@gmail.com>"
+  uuid: tick-0
+  questions:
+    - variable: "influx_user"
+      description: "The default InfluxDB username"
+      label: "InfluxDB User:"
+      required: true
+      default: "root"
+      type: "string"
+    - variable: "influx_password"
+      description: "The default InfluxDB password"
+      label: "InfluxDB Password:"
+      required: true
+      default: "root"
+      type: "string"
+chronograf:
+  scale: 1
+telegraf:
+  metadata: &id001
+    config: |
+      [agent]
+        interval = "10s"
+        round_interval = true
+        flush_interval = "10s"
+        flush_jitter = "0s"
+        debug = false
+        hostname = ""
+      [outputs]
+      [[outputs.influxdb]]
+        urls = ["http://influxdb:8086"]
+        database = "metrics"
+        precision = "s"
+        username = "${influx_user}"
+        password = "${influx_password}"
+      [plugins]
+      [[plugins.cpu]]
+        percpu = true
+        totalcpu = true
+        drop = [ "cpu_time"]
+      [[plugins.disk]]
+      [[plugins.io]]
+      [[plugins.mem]]
+      [[plugins.swap]]
+      [[plugins.system]]
+      [[plugins.netstat]]
+      [[plugins.net]]
+      [[plugins.docker]]
+telegraf-config:
+  metadata: *id001
+influxdb:
+  scale: 1

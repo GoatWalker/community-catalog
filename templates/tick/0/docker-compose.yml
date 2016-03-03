@@ -1,0 +1,44 @@
+chronograf:
+  environment:
+    INFLUXDB_HOST: db
+  labels:
+    io.rancher.container.hostname_override: container_name
+  image: jbye/chronograf:0.10.0
+  links:
+  - influxdb:db
+telegraf:
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.sidekicks: telegraf-config
+    io.rancher.container.hostname_override: container_name
+  tty: true
+  image: objectpartners/telegraf
+  links:
+  - influxdb:influxdb
+  volumes:
+  - /var/run/docker.sock:/var/run/docker.sock
+  - /cgroup:/sys/fs/cgroup
+  volumes_from:
+  - telegraf-config
+telegraf-config:
+  environment:
+    TELEGRAF_DC_TAG: logging
+    TELEGRAF_INFLUXDB_HOST: influxdb
+    TELEGRAF_INFLUXDB_PASSWORD: ${influx_password}
+    TELEGRAF_INFLUXDB_PORT: '8086'
+    TELEGRAF_INFLUXDB_USER: ${influx_user}
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.hostname_override: container_name
+  image: objectpartners/rancher-telegraf-config
+  links:
+  - influxdb:influxdb
+influxdb:
+  labels:
+    io.rancher.container.hostname_override: container_name
+  image: tutum/influxdb:0.10
+  environment:
+    PRE_CREATE_DB: metrics
+    ADMIN_USER: ${influx_user}
+    INFLUXDB_INIT_PWD: ${influx_password}
+    INFLUXDB_HTTP_AUTH_ENABLED: true

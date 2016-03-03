@@ -1,0 +1,8 @@
+name: TICK
+description: |
+  Application monitoring from InfluxData
+version: 0.10-rancher1
+category: monitoring
+maintainer: "John Engelman <john.r.engelman@gmail.com>"
+minimum_rancher_version: v0.56.0
+license:
